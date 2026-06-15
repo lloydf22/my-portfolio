@@ -118,7 +118,7 @@ export default function Desktop() {
               <p className="text-center text-[10px] uppercase font-bold tracking-wider text-zinc-600 mb-1">Quick Mobile Access Routes:</p>
               
               <a 
-                href="https://github.com/ianlloydfinley" 
+                href="https://github.com/lloydf22" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full text-center block px-4 py-2 border-2 border-outset font-bold active:border-inset bg-gray-200 text-black hover:bg-gray-300 transition-colors"
