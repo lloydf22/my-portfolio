@@ -40,7 +40,6 @@ export default function Game() {
   const isAttacking = useRef<boolean>(false);
   const attackFrame = useRef<number>(0);
 
-  // Track coordinates to safely fall back to if tagged by a monster
   const lastSafeX = useRef<number>(144);
   const lastSafeY = useRef<number>(250);
 
@@ -49,7 +48,6 @@ export default function Game() {
   const glitchTimer = useRef<number>(0);
 
   const dungeonMap = useRef<Record<string, RoomData>>({
-    // Start Area: Safe straight hallway leading up
     "1,0": {
       grid: [
         [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
@@ -65,13 +63,12 @@ export default function Game() {
       ],
       enemies: [], crates: []
     },
-    // Intersection T-Junction Fork Choice Room
     "1,1": {
       grid: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
         [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
         [1, 1, 1, 0, 0, 0, 0, 1, 1, 1],
@@ -85,13 +82,12 @@ export default function Game() {
       ], 
       crates: []
     },
-    // Left Secret Loop: Trap dead-end branching lane with breakable crates
     "0,1": {
       grid: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         [1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
@@ -108,13 +104,12 @@ export default function Game() {
         { x: 48, y: 80, isBroken: false }
       ]
     },
-    // Right Pathway leading up to the final treasure chamber
     "2,1": {
       grid: [
         [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
         [1, 1, 1, 0, 0, 1, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1], 
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -125,7 +120,6 @@ export default function Game() {
       enemies: [{ x: 100, y: 80, dir: 1, isDead: false }],
       crates: [{ x: 260, y: 80, isBroken: false }]
     },
-    // Final Sanctum Room: Holds the Gold Treasure chalice goal block
     "2,2": {
       grid: [
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -187,23 +181,19 @@ export default function Game() {
       const currentRoom = dungeonMap.current[activeKey];
       if (!currentRoom) return;
 
-      // --- ADVANCED CRT MONITOR TERMINAL STATIC GLITCH MODE ---
       if (gameState === "GLITCHING") {
         glitchTimer.current++;
-
-        // 1. Render true programmatic analog noise static buffer array
         const noiseData = ctx.createImageData(CANVAS_SIZE, CANVAS_SIZE);
         const data = noiseData.data;
         for (let i = 0; i < data.length; i += 4) {
           const noiseValue = Math.floor(Math.random() * 255);
-          data[i] = noiseValue;     // Red
-          data[i+1] = noiseValue;   // Green
-          data[i+2] = noiseValue;   // Blue
-          data[i+3] = 255;          // Opacity Alpha Channel
+          data[i] = noiseValue;     
+          data[i+1] = noiseValue;   
+          data[i+2] = noiseValue;   
+          data[i+3] = 255;          
         }
         ctx.putImageData(noiseData, 0, 0);
 
-        // 2. Inject horizontal tearing lines
         ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
         for (let j = 0; j < CANVAS_SIZE; j += Math.floor(Math.random() * 30) + 10) {
           ctx.fillRect(0, j + Math.sin(glitchTimer.current), CANVAS_SIZE, Math.floor(Math.random() * 4) + 1);
@@ -248,8 +238,14 @@ export default function Game() {
       else if (keys.current["ArrowDown"] || keys.current["KeyS"]) { dy = SPEED; pDir.current = 2; }
       else if (keys.current["ArrowLeft"] || keys.current["KeyA"]) { dx = -SPEED; pDir.current = 3; }
 
-      const nextPX = pX.current + dx;
-      const nextPY = pY.current + dy;
+      let nextPX = pX.current + dx;
+      let nextPY = pY.current + dy;
+
+      if (activeKey === "1,0") {
+        if (nextPX < 104) nextPX = 104;
+        if (nextPX > 152) nextPX = 152;
+        if (nextPY > 280) nextPY = 280; 
+      }
 
       if (!checkWallCollision(currentRoom.grid, nextPX, nextPY)) {
         pX.current = nextPX; pY.current = nextPY;
@@ -273,7 +269,7 @@ export default function Game() {
         });
       } else { isAttacking.current = false; }
 
-      // 5. ENEMY PHYSICS CONTROLLER (NOW ENFORCING WALL BOUNDARIES)
+      // 5. ENEMY PHYSICS CONTROLLER
       currentRoom.enemies.forEach((enemy) => {
         if (enemy.isDead) return;
 
@@ -292,7 +288,7 @@ export default function Game() {
         if (!checkWallCollision(currentRoom.grid, nextEX, nextEY, 6)) {
           enemy.x = nextEX; enemy.y = nextEY;
         } else {
-          enemy.dir = Math.floor(Math.random() * 4); // Pivot instantly on hit
+          enemy.dir = Math.floor(Math.random() * 4); 
         }
 
         ctx.fillStyle = "#9400d3"; ctx.fillRect(enemy.x - 6, enemy.y - 6, 12, 12); 
@@ -301,9 +297,7 @@ export default function Game() {
           enemy.isDead = true; setScore((p) => p + 200); 
         }
 
-        // MONSTER CONTACT TARGET DAMAGE LOOP
         if (Math.hypot(pX.current - enemy.x, pY.current - enemy.y) < 12) {
-          // Bounce right back safely to the specific cached doorway pathway anchor
           pX.current = lastSafeX.current;
           pY.current = lastSafeY.current;
           
@@ -323,34 +317,92 @@ export default function Game() {
         setScore((p) => p + 1000); setGameState("VICTORY"); return;
       }
 
-      // 7. RIGID ROOM DOORWAY OVERRIDE TRANSITION ENGINE
-      // Explicitly calculates pathway safe center points to completely eradicate wall spawning loops
+      // =========================================================================
+      // 🚪 7. PATHWAY TRANSITION ENGINE WITH RE-ENTRY ROUTING FIXED
+      // =========================================================================
       let roomChanged = false;
-      if (pY.current < 4) { roomY.current++; pY.current = CANVAS_SIZE - 24; roomChanged = true; }
-      else if (pY.current > CANVAS_SIZE - 4) { roomY.current--; pY.current = 24; roomChanged = true; }
-      else if (pX.current > CANVAS_SIZE - 4) { roomX.current++; pX.current = 24; roomChanged = true; }
-      else if (pX.current < 4) { roomX.current--; pX.current = CANVAS_SIZE - 24; roomChanged = true; }
+
+      // TOP EDGE
+      if (pY.current < 4) {
+        if (activeKey === "1,0" || activeKey === "2,1") {
+          roomY.current++;
+          pY.current = CANVAS_SIZE - 24;
+          roomChanged = true;
+        } else {
+          pY.current = 4;
+        }
+      }
+      // BOTTOM EDGE
+      else if (pY.current > CANVAS_SIZE - 4) {
+        if (activeKey === "1,1" || activeKey === "2,2") {
+          roomY.current--;
+          pY.current = 24;
+          roomChanged = true;
+        } else {
+          pY.current = CANVAS_SIZE - 4;
+        }
+      }
+      // RIGHT EDGE (FIXED: Added activeKey === "0,1" to allow running back out to intersection)
+      else if (pX.current > CANVAS_SIZE - 4) {
+        if (activeKey === "1,1" || activeKey === "0,1") {
+          roomX.current++;
+          pX.current = 24;
+          roomChanged = true;
+        } else {
+          pX.current = CANVAS_SIZE - 4;
+        }
+      }
+      // LEFT EDGE
+      else if (pX.current < 4) {
+        if (activeKey === "1,1" || activeKey === "2,1") {
+          roomX.current--;
+          pX.current = CANVAS_SIZE - 24;
+          roomChanged = true;
+        } else {
+          pX.current = 4;
+        }
+      }
 
       if (roomChanged) {
         const nextKey = `${roomX.current},${roomY.current}`;
         
-        // --- EXPLICIT DOOR PATHWAY LANDING TRACKS ---
-        if (nextKey === "1,0") { pX.current = 144; } // Entrance hallway path alignment
+        if (nextKey === "1,0") { 
+          pX.current = 144; 
+        } 
         else if (nextKey === "1,1") {
-          // T-Junction: Align based on coming from bottom corridor or side passages
-          if (pY.current > CANVAS_SIZE - 40) { pX.current = 144; } // Coming from below
-          else { pY.current = 80; } // Coming from Left or Right channels
+          // If returning from the left room ("0,1"), line up right at the threshold
+          if (roomX.current === 1 && pX.current < 40) { 
+            pX.current = 24; 
+            pY.current = 80; 
+          } 
+          // If returning from the right room ("2,1")
+          else if (roomX.current === 1 && pX.current > CANVAS_SIZE - 40) {
+            pX.current = CANVAS_SIZE - 24;
+            pY.current = 80;
+          }
+          // Default bottom entrance transition
+          else { 
+            pX.current = 144; 
+          } 
         }
-        else if (nextKey === "0,1") { pX.current = CANVAS_SIZE - 24; pY.current = 80; } // Safe path slot for secret room
-        else if (nextKey === "2,1") { pX.current = 24; pY.current = 80; }               // Safe path slot for right approach
-        else if (nextKey === "2,2") { pX.current = 144; pY.current = CANVAS_SIZE - 24; } // Safe center path spot for boss cell
+        else if (nextKey === "0,1") { 
+          pX.current = CANVAS_SIZE - 48; 
+          pY.current = 80; 
+        } 
+        else if (nextKey === "2,1") { 
+          pX.current = 48; 
+          pY.current = 80; 
+        }               
+        else if (nextKey === "2,2") { 
+          pX.current = 144; 
+          pY.current = CANVAS_SIZE - 24; 
+        } 
         
-        // Lock this verified location down as our new relative respawn sanctuary
         lastSafeX.current = pX.current;
         lastSafeY.current = pY.current;
       }
 
-      // 8. RENDER PLAYER CORE CHAMPION MODEL
+      // 8. RENDER PLAYER MODEL
       ctx.fillStyle = "#ffd700"; ctx.beginPath(); ctx.arc(pX.current, pY.current, 7, 0, Math.PI * 2); ctx.fill();
 
       // 9. TORCHLIGHT RADIAL LANTERN CONE SHROUD
@@ -391,18 +443,14 @@ export default function Game() {
       <div className="relative border-4 border-[#c0c0c0] bg-black shadow-inner flex items-center justify-center overflow-hidden">
         <canvas ref={canvasRef} width={CANVAS_SIZE} height={CANVAS_SIZE} className="block" />
 
-        {/* --- DYNAMIC RETRO GAME OVER PANEL WITH BROKEN HEART DESIGN --- */}
+        {/* Game Over Screen */}
         {gameState === "GAME_OVER" && (
           <div className="absolute inset-0 bg-black flex flex-col items-center justify-center gap-3 p-4">
-            
-            {/* Custom styled pixel-grid layout representation of a broken heart symbol art */}
             <div className="text-red-500 text-5xl font-mono select-none font-bold animate-pulse leading-none mb-1">
               💔
             </div>
-            
             <h2 className="text-red-600 font-bold text-base tracking-widest uppercase select-none">SYSTEM FAILURE</h2>
             <p className="text-gray-500 text-[10px] text-center max-w-[180px] select-none">Core metrics flatlined. Connection severed.</p>
-            
             <div className="flex flex-col gap-2 w-44 mt-3">
               <button 
                 onClick={resetGame} 
@@ -415,7 +463,7 @@ export default function Game() {
           </div>
         )}
 
-        {/* Victory End Screen Panel */}
+        {/* Victory Screen */}
         {gameState === "VICTORY" && (
           <div className="absolute inset-0 bg-blue-900/90 flex flex-col items-center justify-center gap-3 p-4">
             <h2 className="text-yellow-400 font-bold text-xl tracking-widest">🏆 MISSION COMPLETION 🏆</h2>
