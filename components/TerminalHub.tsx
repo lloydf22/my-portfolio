@@ -23,11 +23,17 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
   ]);
 
   const terminalEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Keep terminal text scrolled to the absolute bottom automatically
   useEffect(() => {
     terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history]);
+
+  // Clean ref-based container target focus engine
+  const handleContainerFocus = () => {
+    inputRef.current?.focus();
+  };
 
   const handleCommandSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +43,7 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
     const tokens = trimmedInput.toLowerCase().split(" ");
     const cmd = tokens[0];
 
-    // Log the user's input line
+    // Log the user's input line exactly as written
     const newHistory = [...history, { text: `C:\\WINDOWS>${trimmedInput}`, type: "input" as const }];
 
     switch (cmd) {
@@ -88,20 +94,20 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
       case "neofetch":
         newHistory.push({
           text: `
-   .-\`\"\"\"\`-.      ian@fiu-workstation
-  /   _   _   \\     -------------------
-  |  (o) (o)  |     OS: Windows 98 SE Core Emulator
-  |   \\   /   |     KERNEL: Next.js v14 Runtime Stack
-  \\    \`-\`    /     CPU: Dell Precision 5820 Unit
-   \`._______.\`      GPU: Tesla P40 Acceleration Array
-                    MEMORY: 24GB VRAM LLM Local Allocation
+ .-\`\"\"\"\`-.      ian@fiu-workstation
+/   _   _   \\     -------------------
+|  (o) (o)  |     OS: Windows 98 SE Core Emulator
+|   \\   /   |     KERNEL: Next.js v14 Runtime Stack
+\\    \`-\`    /     CPU: Dell Precision 5820 Unit
+ \`._______.\`      GPU: Tesla P40 Acceleration Array
+                  MEMORY: 24GB VRAM LLM Local Allocation
           `,
           type: "system"
         });
         break;
 
       case "cat":
-        triggerCat(); // Invokes callback to flag desktop initialization hooks
+        triggerCat(); 
         newHistory.push(
           { text: "Loading CAT.SYS network frameworks...", type: "system" },
           { text: "Acknowledge handshake... Pixel array companion spawned successfully.", type: "output" }
@@ -109,7 +115,7 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
         break;
 
       case "hal9000":
-        triggerHal(); // Fires state change to launch floating custom HAL eye frame window
+        triggerHal(); 
         newHistory.push(
           { text: "WARNING: BROADCASTING REMOTE INTERRUPT SIGNAL VECTOR...", type: "error" },
           { text: "Connection successfully hijacked by heuristic subsystem layer.", type: "system" }
@@ -117,8 +123,8 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
         break;
 
       case "crash":
-        triggerCrash(); // Triggers global state switch up to show BSOD
-        return; // Halts terminal stream immediately
+        triggerCrash(); 
+        return; 
 
       default:
         newHistory.push({ 
@@ -134,8 +140,8 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
 
   return (
     <div 
-      className="bg-black text-[#00ff00] font-mono text-sm p-3 h-full flex flex-col min-h-[360px] cursor-text overflow-y-auto"
-      onClick={() => document.getElementById("terminal-hidden-input")?.focus()}
+      className="bg-black text-[#00ff00] font-mono text-sm p-3 h-full flex flex-col min-h-[360px] cursor-text overflow-y-auto selection:bg-zinc-700"
+      onClick={handleContainerFocus}
     >
       {/* Scrollable Command Line Terminal Output Window Track */}
       <div className="flex-1 space-y-1 overflow-y-auto pr-1">
@@ -154,18 +160,26 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
         <div ref={terminalEndRef} />
       </div>
 
-      {/* Interactive Active Input Console Line */}
+      {/* Interactive Active Input Console Line (Forced text-white safety constraints added) */}
       <form onSubmit={handleCommandSubmit} className="flex items-center mt-2 border-t border-gray-900 pt-2 select-none">
         <span className="text-white shrink-0">C:\WINDOWS&gt;</span>
         <input
-          id="terminal-hidden-input"
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="flex-1 bg-transparent border-none outline-none text-white font-mono text-sm pl-1 focus:ring-0 caret-white"
+          className="flex-1 bg-transparent border-none outline-none font-mono text-sm pl-1 focus:ring-0 focus:outline-none caret-white"
           autoFocus
           autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
           maxLength={50}
+          style={{
+            color: "#ffffff", // Structural fallback style protection forces layout rendering
+            background: "transparent",
+            boxShadow: "none"
+          }}
         />
       </form>
     </div>

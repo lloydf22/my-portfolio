@@ -113,7 +113,6 @@ export default function Desktop() {
 
             <hr className="border-gray-400 border-b shadow-white shadow-sm" />
 
-            {/* Quick Access Mobile Buttons for Hiring Managers on the Move */}
             <div className="flex flex-col gap-2 pt-1">
               <p className="text-center text-[10px] uppercase font-bold tracking-wider text-zinc-600 mb-1">Quick Mobile Access Routes:</p>
               
@@ -271,7 +270,8 @@ export default function Desktop() {
             {systemLaunchers.map((app) => (
               <div
                 key={app.id}
-                onDoubleClick={() => launchApplication(app)}
+                /* FIXED EVENT TRIGGER BELOW: Swapped out onDoubleClick for immediate onClick execution */
+                onClick={() => launchApplication(app)}
                 className="flex flex-col items-center justify-center w-24 p-2 rounded border border-transparent hover:bg-white/10 hover:border-white/20 focus-within:outline-dotted focus-within:outline-1 focus-within:outline-white text-white text-center text-xs gap-1 cursor-pointer select-none pointer-events-auto"
               >
                 <img 
@@ -342,7 +342,6 @@ export default function Desktop() {
 
             <div className="h-6 w-[2px] bg-gray-400 mx-2 shadow-inner" />
             
-            {/* Active Running Taskbar Tab Program Strips */}
             <div className="flex items-center gap-1 overflow-x-auto max-w-[50vw]">
               {systemLaunchers.map((app) => {
                 if (!openWindows[app.id]) return null;
@@ -373,7 +372,6 @@ export default function Desktop() {
             </div>
           </div>
 
-          {/* System Clock Tray Box */}
           <div className="px-2 py-1 bg-gray-300 text-xs text-black font-mono flex items-center gap-1.5 h-7 shadow-inner" style={{ borderStyle: 'inset', borderWidth: '2px' }}>
             <img src="https://win98icons.alexmeub.com/icons/png/loudsheet_rays-0.png" className="w-3.5 h-3.5 object-contain" default-src="https://win98icons.alexmeub.com/icons/png/loudspeaker_rays-0.png" alt="Volume" />
             <span>{time}</span>
