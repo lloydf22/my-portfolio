@@ -3,7 +3,7 @@ import "./globals.css";
 import "98.css"; // Global retro design stylesheet
 
 export const metadata: Metadata = {
-  title: "Ian Lloyd Finley - Desktop Portfolio",
+  title: "Ian Finley - Desktop Portfolio",
   description: "Computer Engineering portfolio styled after a classic operating system.",
 };
 
