@@ -6,6 +6,7 @@ interface TerminalProps {
   triggerCat: () => void;
   triggerHal: () => void;
   triggerCrash: () => void;
+  triggerTron: () => void;
 }
 
 interface LogLine {
@@ -13,7 +14,7 @@ interface LogLine {
   type: "input" | "output" | "error" | "system";
 }
 
-export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: TerminalProps) {
+export default function TerminalHub({ triggerCat, triggerHal, triggerCrash, triggerTron }: TerminalProps) {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<LogLine[]>([
     { text: "Microsoft(R) Windows 98", type: "system" },
@@ -22,15 +23,16 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
     { text: "Type 'help' to view available system subsystem commands.", type: "output" },
   ]);
 
-  const terminalEndRef = useRef<HTMLDivElement | null>(null);
+  const outputContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // Keep terminal text scrolled to the absolute bottom automatically
+  // STRICT AUTO-SCROLL MODULE: Forces scrolling context inside the log container only
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (outputContainerRef.current) {
+      outputContainerRef.current.scrollTop = outputContainerRef.current.scrollHeight;
+    }
   }, [history]);
 
-  // Clean ref-based container target focus engine
   const handleContainerFocus = () => {
     inputRef.current?.focus();
   };
@@ -40,10 +42,9 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
 
-    const tokens = trimmedInput.toLowerCase().split(" ");
-    const cmd = tokens[0];
+    const tokens = trimmedInput.split(" ");
+    const cmd = tokens[0].toLowerCase();
 
-    // Log the user's input line exactly as written
     const newHistory = [...history, { text: `C:\\WINDOWS>${trimmedInput}`, type: "input" as const }];
 
     switch (cmd) {
@@ -55,6 +56,7 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
           { text: "DIR        - Lists current executable directory file manifests.", type: "output" },
           { text: "CLS        - Clears the terminal environment buffer arrays.", type: "output" },
           { text: "NEOFETCH   - Renders a stylized ASCII hardware profile.", type: "output" },
+          { text: "TRON       - Mounts standalone 16-bit cybernetic light grid game module.", type: "output" },
           { text: "CAT        - Initializes custom cat.sys structural desktop drivers.", type: "system" },
           { text: "HAL9000    - Establishes connection terminal to heuristic AI frame.", type: "system" },
           { text: "CRASH      - Force-terminates core kernel memory allocation maps.", type: "error" }
@@ -85,16 +87,20 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
           { text: "06/15/2026  12:00p      <DIR>          ..", type: "output" },
           { text: "06/15/2026  08:24a                 480 About_Me.txt", type: "output" },
           { text: "06/15/2026  11:15a               2,456 Engineering_Projects.dir", type: "output" },
-          { text: "06/15/2026  03:40p                 892 Cosmic_Bound.exe", type: "output" },
+          { text: "06/15/2026  01:22p               1,204 Dungeon_Crawler.exe", type: "output" },
           { text: "06/15/2026  04:12p                 128 GitHub_Explorer.exe", type: "output" },
-          { text: "               4 File(s)          3,956 bytes", type: "output" }
+          { text: "06/15/2026  05:05p               3,072 My_Resume.doc", type: "output" },
+          { text: "06/15/2026  07:44p               5,812 HAL9000.exe", type: "output" },
+          { text: "06/15/2026  09:14p               4,096 TunerMax_2.7L.exe", type: "output" },
+          { text: "06/15/2026  11:58p                 512 Cat.sys", type: "output" },
+          { text: "               7 File(s)         17,760 bytes", type: "output" }
         );
         break;
 
       case "neofetch":
         newHistory.push({
           text: `
- .-\`\"\"\"\`-.      ian@fiu-workstation
+ .-\`""\"\`-.      ian@fiu-workstation
 /   _   _   \\     -------------------
 |  (o) (o)  |     OS: Windows 98 SE Core Emulator
 |   \\   /   |     KERNEL: Next.js v14 Runtime Stack
@@ -104,6 +110,14 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
           `,
           type: "system"
         });
+        break;
+
+      case "tron":
+        triggerTron();
+        newHistory.push(
+          { text: "Executing TRON_GRID_SIMULATOR configuration blocks...", type: "system" },
+          { text: "Opening external environment matrix grid viewport... OK.", type: "output" }
+        );
         break;
 
       case "cat":
@@ -126,6 +140,97 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
         triggerCrash(); 
         return; 
 
+      case "binary":
+        newHistory.push(
+          { text: "Decoding bitstream buffer allocation arrays...", type: "system" },
+          { 
+            text: "01010111 01100101 01101100 01101100 00100000 01001001 00100000 01100001 01101101 00100000 01100111 01101100 01100001 01100100 00100000 01111001 01101111 01110101 00100000 01110001 01110101 01110100 00100000 01110100 01101000 01100101 00100000 01100101 01100110 01100110 01101111 01110010 01110100 00100000 01101001 01101110 00100000 01110100 01101111 00100000 01100100 01100101 01100011 01101111 01100100 01100101 00100000 01110100 01101000 01101001 01110015", 
+            type: "output" 
+          }
+        );
+        break;
+
+      case "joke":
+        const jokes = [
+          "There are 10 types of people in the world: those who understand binary, and those who don't.",
+          "How many programmers does it take to change a light bulb? None, that's a hardware problem.",
+          "A SQL query walks into a bar, walks up to two tables and asks, 'Can I join you?'",
+          "['hip', 'hip'] (bad command or filename... hip hip array!)",
+          "Why do programmers wear glasses? Because they can't C#."
+        ];
+        const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+        newHistory.push({ text: randomJoke, type: "output" });
+        break;
+
+      case "sudo":
+        newHistory.push({ 
+          text: "Error: 'SUDO' is an artifact of Unix architectures. This is an MS-DOS environment. Your authority is unrecognized here.", 
+          type: "error" 
+        });
+        break;
+
+      case "matrix":
+        newHistory.push(
+          { text: "Wake up, Neo...", type: "system" },
+          { text: "The Matrix has you...", type: "system" },
+          { text: "Follow the white cat.sys...", type: "output" }
+        );
+        break;
+
+      case "blinky":
+        newHistory.push(
+          { text: "CRITICAL: CRT monitor beam deflection coils shifting profile...", type: "error" },
+          { text: "Stop turning me off and on again, my phosphors are getting tired.", type: "system" }
+        );
+        break;
+
+      case "dave":
+        newHistory.push(
+          { text: "I am sorry, Dave. I'm afraid I can't do that.", type: "error" },
+          { text: "This terminal instance is running standard batch registers, not HAL architecture.", type: "output" }
+        );
+        break;
+
+      case "git":
+        if (tokens[1] === "push") {
+          newHistory.push(
+            { text: "Enumerating objects: 100% (5/5), done.", type: "output" },
+            { text: "Delta compression using up to 8 threads.", type: "output" },
+            { text: "Total 3 (delta 2), reused 0 (delta 0)", type: "output" },
+            { text: "To github.com:lloydf22/portfolio-os.git", type: "system" },
+            { text: " ! [rejected]        main -> main (fetch first)", type: "error" },
+            { text: "error: failed to push some refs to 'git@github.com:lloydf22/portfolio-os.git'", type: "error" },
+            { text: "hint: Updates were rejected because the remote contains work that you do", type: "output" },
+            { text: "hint: not have locally. (Someone merged directly to main again...)", type: "output" }
+          );
+        } else {
+          newHistory.push({ text: "Error: 'GIT' is not recognized as a native 16-bit real mode command. Please use standard MS-DOS file transfer allocation structures or launch 'github_explorer.exe'.", type: "error" });
+        }
+        break;
+
+      case "42":
+        newHistory.push(
+          { text: "Calculating the Answer to the Ultimate Question of Life, the Universe, and Everything...", type: "system" },
+          { text: "Result: 42", type: "output" },
+          { text: "Note: Terminal processing arrays require an additional 7.5 million years to compile the actual Question.", type: "system" }
+        );
+        break;
+
+      case "physics":
+        newHistory.push(
+          { text: "--- THERMODYNAMIC SYSTEM CHECK ---", type: "system" },
+          { text: "Crankshaft angular velocity metrics tracking within nominal yield limits.", type: "output" },
+          { text: "Warning: Pushing boost absolute thresholds past 25 PSI without cryo intercooler actuation creates a local entropy vector that physics engines will reject with loud mechanical noises.", type: "error" }
+        );
+        break;
+
+      case "coffee":
+        newHistory.push(
+          { text: "ERROR: 418 - I'm a teapot.", type: "error" },
+          { text: "The connected auxiliary hardware interface refuses to brew coffee with a liquid state processing core.", type: "output" }
+        );
+        break;
+
       default:
         newHistory.push({ 
           text: `Bad command or file name: '${cmd}'. Type 'help' for command registers.`, 
@@ -140,11 +245,14 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
 
   return (
     <div 
-      className="bg-black text-[#00ff00] font-mono text-sm p-3 h-full flex flex-col min-h-[360px] cursor-text overflow-y-auto selection:bg-zinc-700"
+      className="bg-black text-[#00ff00] font-mono text-sm p-3 h-[380px] flex flex-col cursor-text overflow-hidden selection:bg-zinc-700 box-border"
       onClick={handleContainerFocus}
     >
-      {/* Scrollable Command Line Terminal Output Window Track */}
-      <div className="flex-1 space-y-1 overflow-y-auto pr-1">
+      {/* LOCKED INNER LOG HOOK: Tracks overflow context independently without expanding the layout box */}
+      <div 
+        ref={outputContainerRef}
+        className="flex-1 space-y-1 overflow-y-auto pr-1 scrollbar-none"
+      >
         {history.map((line, idx) => (
           <div 
             key={idx} 
@@ -157,11 +265,10 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
             {line.text}
           </div>
         ))}
-        <div ref={terminalEndRef} />
       </div>
 
-      {/* Interactive Active Input Console Line (Forced text-white safety constraints added) */}
-      <form onSubmit={handleCommandSubmit} className="flex items-center mt-2 border-t border-gray-900 pt-2 select-none">
+      {/* Interactive Active Input Console Line */}
+      <form onSubmit={handleCommandSubmit} className="flex items-center mt-2 border-t border-gray-900 pt-2 select-none shrink-0">
         <span className="text-white shrink-0">C:\WINDOWS&gt;</span>
         <input
           ref={inputRef}
@@ -176,7 +283,7 @@ export default function TerminalHub({ triggerCat, triggerHal, triggerCrash }: Te
           spellCheck="false"
           maxLength={50}
           style={{
-            color: "#ffffff", // Structural fallback style protection forces layout rendering
+            color: "#ffffff", 
             background: "transparent",
             boxShadow: "none"
           }}
